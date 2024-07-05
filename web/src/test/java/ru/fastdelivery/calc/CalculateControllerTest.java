@@ -8,9 +8,12 @@ import org.springframework.http.ResponseEntity;
 import ru.fastdelivery.ControllerTest;
 import ru.fastdelivery.domain.common.currency.CurrencyFactory;
 import ru.fastdelivery.domain.common.price.Price;
+import ru.fastdelivery.domain.delivery.point.CoordinateFactory;
 import ru.fastdelivery.presentation.api.request.CalculatePackagesRequest;
 import ru.fastdelivery.presentation.api.request.CargoPackage;
+import ru.fastdelivery.presentation.api.request.PointCoordinate;
 import ru.fastdelivery.presentation.api.response.CalculatePackagesResponse;
+import ru.fastdelivery.usecase.DistanceCalculateUseCase;
 import ru.fastdelivery.usecase.TariffCalculateUseCase;
 
 import java.math.BigDecimal;
@@ -28,6 +31,10 @@ class CalculateControllerTest extends ControllerTest {
     TariffCalculateUseCase useCase;
     @MockBean
     CurrencyFactory currencyFactory;
+    @MockBean
+    DistanceCalculateUseCase distanceCalculateUseCase;
+    @MockBean
+    CoordinateFactory coordinateFactory;
 
     @Test
     @DisplayName("Валидные данные для расчета стоимость -> Ответ 200")
@@ -48,6 +55,18 @@ class CalculateControllerTest extends ControllerTest {
     @DisplayName("Список упаковок == null -> Ответ 400")
     void whenEmptyListPackages_thenReturn400() {
         var request = new CalculatePackagesRequest(null, "RUB");
+
+        ResponseEntity<String> response = restTemplate.postForEntity(baseCalculateApi, request, String.class);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("Координаты пунктов == null -> Ответ 400")
+    void whenEmptyCoordinates_thenReturn400() {
+        var request = new CalculatePackagesRequest(
+                List.of(new CargoPackage(BigInteger.TEN)), "RUB",
+                new PointCoordinate(null, null), new PointCoordinate(null, null));
 
         ResponseEntity<String> response = restTemplate.postForEntity(baseCalculateApi, request, String.class);
 

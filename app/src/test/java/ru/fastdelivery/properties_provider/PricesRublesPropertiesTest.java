@@ -17,6 +17,7 @@ class PricesRublesPropertiesTest {
 
     public static final BigDecimal PER_KG = BigDecimal.valueOf(50);
     public static final BigDecimal MINIMAL = BigDecimal.valueOf(100);
+    public static final BigDecimal PER_CUB = BigDecimal.valueOf(10000);
     public static final String RUB = "RUB";
     final CurrencyFactory currencyFactory = mock(CurrencyFactory.class);
     PricesRublesProperties properties;
@@ -28,6 +29,7 @@ class PricesRublesPropertiesTest {
 
         properties.setPerKg(PER_KG);
         properties.setMinimal(MINIMAL);
+        properties.setPerCubicMeter(PER_CUB);
 
         var currency = mock(Currency.class);
         when(currency.getCode()).thenReturn(RUB);
@@ -50,6 +52,15 @@ class PricesRublesPropertiesTest {
 
         verify(currencyFactory).create("RUB");
         assertThat(actual.amount()).isEqualByComparingTo(MINIMAL);
+        assertThat(actual.currency().getCode()).isEqualTo("RUB");
+    }
+
+    @Test
+    void whenCallCostPerCubicMeter_thenRequestFromConfig() {
+        var actual = properties.costPerCubicMeter();
+
+        verify(currencyFactory).create("RUB");
+        assertThat(actual.amount()).isEqualByComparingTo(PER_CUB);
         assertThat(actual.currency().getCode()).isEqualTo("RUB");
     }
 }
